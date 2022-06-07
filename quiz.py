@@ -197,15 +197,15 @@ class Database():
     """
 
     def __init__(self):
-        self.cursor, self.conn  = self.connect()
+        self.cursor, self.conn = self.connect()
 
     @staticmethod
     def connect():
         """Connect to DB and return cursor."""
         # Add your Postgres username and password that is attached to the rating database you created. Be sure to hide these before uploading to Github.
-        user = ""
-        password = ""
-        conn = psycopg2.connect(dbname=quiz, user=username, password=mypass)
+        user = os.environ["POSTGRES_USER"]
+        password = os.environ["POSTGRES_PASSWORD"]
+        conn = psycopg2.connect(dbname='quiz', user=user, password=password)
         conn.autocommit = True
         cursor = conn.cursor()
         return (cursor, conn)
@@ -243,7 +243,8 @@ class Database():
 
         # Print column names
         for i, col in enumerate(cols):
-            out += " " + ("{:^" + str(col['len']) + "}").format(col['name']) + " "
+            out += " " + \
+                ("{:^" + str(col['len']) + "}").format(col['name']) + " "
             if i == len(cols) - 1:
                 out += "\n"
             else:
@@ -269,7 +270,8 @@ class Database():
                 if isinstance(col, datetime.date):
                     col = col.strftime("%Y-%m-%d")
 
-                out += " " + ("{:" + str(cols[i]['len']) + "}").format(col) + " "
+                out += " " + \
+                    ("{:" + str(cols[i]['len']) + "}").format(col) + " "
                 if i == len(cols) - 1:
                     out += "\n"
                 else:
@@ -493,7 +495,8 @@ class SQLQuiz():
                             print("\n\tCorrect!")
                             print(sql)
                             print("\n\tMoving on...\n")
-                            self.progress.mark_solved(problem.num, problem.task, sql)
+                            self.progress.mark_solved(
+                                problem.num, problem.task, sql)
                             return True
                         else:
                             print("\n(results do not match answer)\n")
@@ -514,7 +517,8 @@ def write_pickle():
     problems = []
     for i, p in enumerate(PROBLEMS):
         problem = Problem(num=i + 1, **p)
-        description, result = db.get_raw_result(problem.solution, error_on_empty=True)
+        description, result = db.get_raw_result(
+            problem.solution, error_on_empty=True)
         problem.solution_hash = problem.hash_solution(result)
         problem.solution = None
         problems.append(problem)
